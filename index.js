@@ -15,7 +15,7 @@ function complete(commands) {
   };
 }
 
-const downloadSingleVideo = async (videoUrl) => {
+const downloadSingleVideo = async (videoUrl, dir) => {
   const dlVideo = youtubedl(
     videoUrl,
     {
@@ -28,7 +28,7 @@ const downloadSingleVideo = async (videoUrl) => {
   await logger(dlVideo, `Obtaining ${videoUrl}`);
 };
 
-const downloadSinglePlaylist = async (playlistUrl) => {
+const downloadSinglePlaylist = async (playlistUrl, dir) => {
   const playlist = youtubedl(playlistUrl, {
     flatPlaylist: true,
     getId: true,
@@ -53,7 +53,7 @@ const downloadSinglePlaylist = async (playlistUrl) => {
   }
 };
 
-const downloadAllPlaylists = async (playlistsUrl) => {
+const downloadAllPlaylists = async (playlistsUrl, dir) => {
   let ex = {};
 
   const playlists = youtubedl(playlistsUrl, {
@@ -84,7 +84,7 @@ const downloadAllPlaylists = async (playlistsUrl) => {
       ...(await playlist).replace(/\n/g, ",").split(","),
     ];
     let videosUrl = [];
-    await mkdirp.sync(playlistIdAndTitle[0]);
+    await mkdirp.sync(dir + "/" + playlistIdAndTitle[0]);
     for (videoId of playlistArray) {
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
       videosUrl.push(videoUrl);
@@ -94,7 +94,7 @@ const downloadAllPlaylists = async (playlistsUrl) => {
           recodeVideo: "mp4",
         },
         {
-          cwd: __dirname + `/${playlistIdAndTitle[0]}`,
+          cwd: dir + `/${playlistIdAndTitle[0]}`,
         }
       );
       await logger(dlVideo, `Obtaining ${videoUrl}`);
@@ -109,6 +109,7 @@ const downloadAllPlaylists = async (playlistsUrl) => {
 let typeOfDownload = prompt(
   "1 - Single video\n2 - Single playlist\n3 - All playlists\n9 - exit\nType of download: "
 );
+let dir = prompt("dir: ");
 
 try {
   if (typeOfDownload == 3) {
