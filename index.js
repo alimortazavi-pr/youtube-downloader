@@ -22,7 +22,7 @@ const downloadSingleVideo = async (videoUrl, dir) => {
       recodeVideo: "mp4",
     },
     {
-      cwd: __dirname,
+      cwd: dir,
     }
   );
   await logger(dlVideo, `Obtaining ${videoUrl}`);
@@ -37,7 +37,7 @@ const downloadSinglePlaylist = async (playlistUrl, dir) => {
   const playlistArray = await [
     ...(await playlist).replace(/\n/g, ",").split(","),
   ];
-  await mkdirp.sync("single-playlist");
+  await mkdirp.sync(dir + "/" + "single-playlist");
   for (videoId of playlistArray) {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
     const dlVideo = youtubedl(
@@ -46,7 +46,7 @@ const downloadSinglePlaylist = async (playlistUrl, dir) => {
         recodeVideo: "mp4",
       },
       {
-        cwd: __dirname + `/single-playlist`,
+        cwd: dir + `/single-playlist`,
       }
     );
     await logger(dlVideo, `Obtaining ${videoUrl}`);
@@ -116,17 +116,17 @@ try {
     const playlistsUrl = prompt(
       "Playlists URL ('https://www.youtube.com/@Ninja/playlists'): "
     );
-    downloadAllPlaylists(playlistsUrl);
+    downloadAllPlaylists(playlistsUrl, dir);
   } else if (typeOfDownload == 2) {
     const playlistUrl = prompt(
       "Playlist URL ('https://www.youtube.com/playlist?list=PL_LvhWhUYJCy5Vmwo-rUAzewLlO0kAKtq'): "
     );
-    downloadSinglePlaylist(playlistUrl);
+    downloadSinglePlaylist(playlistUrl, dir);
   } else if (typeOfDownload == 1) {
     const videoUrl = prompt(
       "Video URL ('https://www.youtube.com/watch?v=6Dh-RL__uN4'): "
     );
-    downloadSingleVideo(videoUrl);
+    downloadSingleVideo(videoUrl, dir);
   } else if (typeOfDownload == 9) {
     console.log("Exiting...");
     process.exit(1);
