@@ -5,17 +5,20 @@ const { mkdirp } = require("mkdirp");
 var prompt = require("prompt-sync")();
 
 const downloadSingleVideo = async (videoUrl, dir) => {
-  const getIdAndTitleOfVideo = youtubedl(videoUrl, {
+  const videoId = await youtubedl(videoUrl, {
     getId: true,
-    getTitle: true,
   });
 
-  const idAndTitleVideoArray = await [
-    ...(await getIdAndTitleOfVideo).replace(/\n/g, ",").split(","),
-  ];
-  const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
-  if (fs.existsSync(dir + "/" + setTitle)) {
-    console.log(`File "${setTitle}" already exists.`);
+  let fileExist = false;
+  const readDir = fs.readdirSync(dir);
+  for (file of readDir) {
+    if (file.includes(videoId)) {
+      fileExist = true;
+      break;
+    }
+  }
+  if (fileExist) {
+    console.log(`File "${videoId}" already exists.`);
   } else {
     const dlVideo = youtubedl(
       videoUrl,
@@ -42,17 +45,20 @@ const downloadSinglePlaylist = async (playlistUrl, dir) => {
   await mkdirp.sync(dir + "/" + "single-playlist");
   for (videoId of playlistArray) {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const getIdAndTitleOfVideo = youtubedl(videoUrl, {
+    const videoId = await youtubedl(videoUrl, {
       getId: true,
-      getTitle: true,
     });
 
-    const idAndTitleVideoArray = await [
-      ...(await getIdAndTitleOfVideo).replace(/\n/g, ",").split(","),
-    ];
-    const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
-    if (fs.existsSync(dir + "/single-playlist/" + setTitle)) {
-      console.log(`File "${setTitle}" already exists.`);
+    let fileExist = false;
+    const readDir = fs.readdirSync(dir);
+    for (file of readDir) {
+      if (file.includes(videoId)) {
+        fileExist = true;
+        break;
+      }
+    }
+    if (fileExist) {
+      console.log(`File "${videoId}" already exists.`);
     } else {
       const dlVideo = youtubedl(
         videoUrl,
@@ -102,18 +108,21 @@ const downloadAllPlaylists = async (playlistsUrl, dir) => {
     await mkdirp.sync(dir + "/" + playlistIdAndTitle[0]);
     for (videoId of playlistArray) {
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      const getIdAndTitleOfVideo = youtubedl(videoUrl, {
+      const videoId = await youtubedl(videoUrl, {
         getId: true,
-        getTitle: true,
       });
 
-      const idAndTitleVideoArray = await [
-        ...(await getIdAndTitleOfVideo).replace(/\n/g, ",").split(","),
-      ];
-      const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
+      let fileExist = false;
+      const readDir = fs.readdirSync(dir);
+      for (file of readDir) {
+        if (file.includes(videoId)) {
+          fileExist = true;
+          break;
+        }
+      }
       videosUrl.push(videoUrl);
-      if (fs.existsSync(dir + `/${playlistIdAndTitle[0]}/` + setTitle)) {
-        console.log(`File "${setTitle}" already exists.`);
+      if (fileExist) {
+        console.log(`File "${videoId}" already exists.`);
       } else {
         const dlVideo = youtubedl(
           videoUrl,
