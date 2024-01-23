@@ -47,7 +47,7 @@ const downloadSinglePlaylist = async (playlistUrl, dir) => {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
     let fileExist = false;
-    const readDir = fs.readdirSync(dir);
+    const readDir = fs.readdirSync(dir + `/single-playlist`);
     for (file of readDir) {
       if (file.includes(videoId)) {
         fileExist = true;
@@ -107,7 +107,7 @@ const downloadAllPlaylists = async (playlistsUrl, dir) => {
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
       let fileExist = false;
-      const readDir = fs.readdirSync(dir);
+      const readDir = fs.readdirSync(dir + `/${playlistIdAndTitle[0]}`);
       for (file of readDir) {
         if (file.includes(videoId)) {
           fileExist = true;
