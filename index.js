@@ -45,9 +45,6 @@ const downloadSinglePlaylist = async (playlistUrl, dir) => {
   await mkdirp.sync(dir + "/" + "single-playlist");
   for (videoId of playlistArray) {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const videoId = await youtubedl(videoUrl, {
-      getId: true,
-    });
 
     let fileExist = false;
     const readDir = fs.readdirSync(dir);
@@ -108,9 +105,6 @@ const downloadAllPlaylists = async (playlistsUrl, dir) => {
     await mkdirp.sync(dir + "/" + playlistIdAndTitle[0]);
     for (videoId of playlistArray) {
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      const videoId = await youtubedl(videoUrl, {
-        getId: true,
-      });
 
       let fileExist = false;
       const readDir = fs.readdirSync(dir);
