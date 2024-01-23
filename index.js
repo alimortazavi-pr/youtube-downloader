@@ -113,22 +113,18 @@ const downloadAllPlaylists = async (playlistsUrl, dir) => {
       const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
       videosUrl.push(videoUrl);
       if (fs.existsSync(dir + `/${playlistIdAndTitle[0]}/` + setTitle)) {
-        console.log(setTitle);
         console.log(`File "${setTitle}" already exists.`);
       } else {
-        console.log(setTitle);
-        console.log(`File "${setTitle}" is not exists.`);
-
-        // const dlVideo = youtubedl(
-        //   videoUrl,
-        //   {
-        //     recodeVideo: "mp4",
-        //   },
-        //   {
-        //     cwd: dir + `/${playlistIdAndTitle[0]}`,
-        //   }
-        // );
-        // await logger(dlVideo, `Obtaining ${videoUrl}`);
+        const dlVideo = youtubedl(
+          videoUrl,
+          {
+            recodeVideo: "mp4",
+          },
+          {
+            cwd: dir + `/${playlistIdAndTitle[0]}`,
+          }
+        );
+        await logger(dlVideo, `Obtaining ${videoUrl}`);
       }
     }
     ex[playlistUrl] = await videosUrl;
