@@ -4,28 +4,30 @@ const fs = require("fs");
 const { mkdirp } = require("mkdirp");
 var prompt = require("prompt-sync")();
 
-function complete(commands) {
-  return function (str) {
-    var i;
-    var ret = [];
-    for (i = 0; i < commands.length; i++) {
-      if (commands[i].indexOf(str) == 0) ret.push(commands[i]);
-    }
-    return ret;
-  };
-}
-
 const downloadSingleVideo = async (videoUrl, dir) => {
-  const dlVideo = youtubedl(
-    videoUrl,
-    {
-      recodeVideo: "mp4",
-    },
-    {
-      cwd: dir,
-    }
-  );
-  await logger(dlVideo, `Obtaining ${videoUrl}`);
+  const getIdAndTitleOfVideo = youtubedl(videoUrl, {
+    getId: true,
+    getTitle: true,
+  });
+
+  const idAndTitleVideoArray = await [
+    ...(await getIdAndTitleOfVideo).replace(/\n/g, ",").split(","),
+  ];
+  const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
+  if (fs.existsSync(dir + "/" + setTitle)) {
+    console.log(`File "${setTitle}" already exists.`);
+  } else {
+    const dlVideo = youtubedl(
+      videoUrl,
+      {
+        recodeVideo: "mp4",
+      },
+      {
+        cwd: dir,
+      }
+    );
+    await logger(dlVideo, `Obtaining ${videoUrl}`);
+  }
 };
 
 const downloadSinglePlaylist = async (playlistUrl, dir) => {
@@ -40,16 +42,29 @@ const downloadSinglePlaylist = async (playlistUrl, dir) => {
   await mkdirp.sync(dir + "/" + "single-playlist");
   for (videoId of playlistArray) {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const dlVideo = youtubedl(
-      videoUrl,
-      {
-        recodeVideo: "mp4",
-      },
-      {
-        cwd: dir + `/single-playlist`,
-      }
-    );
-    await logger(dlVideo, `Obtaining ${videoUrl}`);
+    const getIdAndTitleOfVideo = youtubedl(videoUrl, {
+      getId: true,
+      getTitle: true,
+    });
+
+    const idAndTitleVideoArray = await [
+      ...(await getIdAndTitleOfVideo).replace(/\n/g, ",").split(","),
+    ];
+    const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
+    if (fs.existsSync(dir + "/single-playlist/" + setTitle)) {
+      console.log(`File "${setTitle}" already exists.`);
+    } else {
+      const dlVideo = youtubedl(
+        videoUrl,
+        {
+          recodeVideo: "mp4",
+        },
+        {
+          cwd: dir + `/single-playlist`,
+        }
+      );
+      await logger(dlVideo, `Obtaining ${videoUrl}`);
+    }
   }
 };
 
@@ -87,17 +102,30 @@ const downloadAllPlaylists = async (playlistsUrl, dir) => {
     await mkdirp.sync(dir + "/" + playlistIdAndTitle[0]);
     for (videoId of playlistArray) {
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      const getIdAndTitleOfVideo = youtubedl(videoUrl, {
+        getId: true,
+        getTitle: true,
+      });
+
+      const idAndTitleVideoArray = await [
+        ...(await getIdAndTitleOfVideo).replace(/\n/g, ",").split(","),
+      ];
+      const setTitle = `${idAndTitleVideoArray[0]} [${idAndTitleVideoArray[1]}].mp4`;
       videosUrl.push(videoUrl);
-      const dlVideo = youtubedl(
-        videoUrl,
-        {
-          recodeVideo: "mp4",
-        },
-        {
-          cwd: dir + `/${playlistIdAndTitle[0]}`,
-        }
-      );
-      await logger(dlVideo, `Obtaining ${videoUrl}`);
+      if (fs.existsSync(dir + `/${playlistIdAndTitle[0]}/` + setTitle)) {
+        console.log(`File "${setTitle}" already exists.`);
+      } else {
+        const dlVideo = youtubedl(
+          videoUrl,
+          {
+            recodeVideo: "mp4",
+          },
+          {
+            cwd: dir + `/${playlistIdAndTitle[0]}`,
+          }
+        );
+        await logger(dlVideo, `Obtaining ${videoUrl}`);
+      }
     }
     ex[playlistUrl] = await videosUrl;
     videosUrl = [];
